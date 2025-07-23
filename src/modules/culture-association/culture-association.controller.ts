@@ -1,5 +1,10 @@
 import { Controller, Post, Param, Body, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CultureAssociationService } from './culture-association.service';
 import { AssociateCulturesDto } from './dto/associate-cultures.dto';
 import { TransformTo } from '@/shared/decorators/transform-to.decorator';
@@ -15,6 +20,7 @@ export class CultureAssociationController {
   @ApiOperation({ summary: 'Associate cultures with a farm and harvest' })
   @ApiParam({ name: 'farmId', type: 'string' })
   @ApiParam({ name: 'harvestId', type: 'string' })
+  @ApiOkResponse({ type: [FarmCultureHarvestDto] })
   associateCultures(
     @Param('farmId') farmId: string,
     @Param('harvestId') harvestId: string,
@@ -26,6 +32,7 @@ export class CultureAssociationController {
   @Get('farm/:farmId')
   @ApiOperation({ summary: 'Get culture associations by farm ID' })
   @ApiParam({ name: 'farmId', type: 'string' })
+  @ApiOkResponse({ type: [FarmCultureHarvestDto] })
   findByFarm(@Param('farmId') farmId: string) {
     return this.service.findByFarm(farmId);
   }
@@ -33,6 +40,7 @@ export class CultureAssociationController {
   @Get('harvest/:harvestId')
   @ApiOperation({ summary: 'Get culture associations by harvest ID' })
   @ApiParam({ name: 'harvestId', type: 'string' })
+  @ApiOkResponse({ type: [FarmCultureHarvestDto] })
   findByHarvest(@Param('harvestId') harvestId: string) {
     return this.service.findByHarvest(harvestId);
   }
@@ -43,6 +51,7 @@ export class CultureAssociationController {
   })
   @ApiParam({ name: 'farmId', type: 'string' })
   @ApiParam({ name: 'harvestId', type: 'string' })
+  @ApiOkResponse({ type: [FarmCultureHarvestDto] })
   findByFarmAndHarvest(
     @Param('farmId') farmId: string,
     @Param('harvestId') harvestId: string,

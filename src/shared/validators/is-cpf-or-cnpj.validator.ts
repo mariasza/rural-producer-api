@@ -13,7 +13,7 @@ export function IsCPFOrCNPJ(validationOptions?: ValidationOptions) {
       propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: string, args: ValidationArguments) {
           if (typeof value !== 'string') return false;
           const onlyDigits = value.replace(/\D/g, '');
           return cpf.isValid(onlyDigits) || cnpj.isValid(onlyDigits);

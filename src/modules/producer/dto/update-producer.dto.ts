@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProducerDto } from './create-producer.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
-export class UpdateProducerDto extends PartialType(CreateProducerDto) {}
+export class UpdateProducerDto {
+  @ApiProperty({ example: 'João da Silva' })
+  @IsNotEmpty()
+  name: string;
+}

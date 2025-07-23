@@ -7,7 +7,12 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CultureService } from './culture.service';
 import { CreateCultureDto } from './dto/create-culture.dto';
 import { UpdateCultureDto } from './dto/update-culture.dto';
@@ -22,12 +27,14 @@ export class CultureController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new culture' })
+  @ApiOkResponse({ type: CultureDto })
   create(@Body() dto: CreateCultureDto) {
     return this.cultureService.create(dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all cultures' })
+  @ApiOkResponse({ type: [CultureDto] })
   findAll() {
     return this.cultureService.findAll();
   }
@@ -35,6 +42,7 @@ export class CultureController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a culture by ID' })
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({ type: CultureDto })
   findOne(@Param('id') id: string) {
     return this.cultureService.findOne(id);
   }
@@ -42,6 +50,7 @@ export class CultureController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a culture by ID' })
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({ type: CultureDto })
   update(@Param('id') id: string, @Body() dto: UpdateCultureDto) {
     return this.cultureService.update(id, dto);
   }
@@ -49,6 +58,7 @@ export class CultureController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a culture by ID' })
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({ type: CultureDto })
   remove(@Param('id') id: string) {
     return this.cultureService.remove(id);
   }

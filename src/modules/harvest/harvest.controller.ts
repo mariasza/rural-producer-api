@@ -3,7 +3,12 @@ import { HarvestService } from './harvest.service';
 import { CreateHarvestDto } from './dto/create-harvest.dto';
 import { HarvestDto } from './dto/harvest.dto';
 import { TransformTo } from '@/shared/decorators/transform-to.decorator';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiOkResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 
 @ApiTags('Harvests')
 @TransformTo(HarvestDto)
@@ -13,25 +18,31 @@ export class HarvestController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new harvest' })
-  create(@Body() dto: CreateHarvestDto) {
+  @ApiOkResponse({ type: HarvestDto })
+  create(@Body() dto: CreateHarvestDto): Promise<HarvestDto> {
     return this.harvestService.create(dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'List all harvests' })
-  findAll() {
+  @ApiOkResponse({ type: [HarvestDto] })
+  findAll(): Promise<HarvestDto[]> {
     return this.harvestService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a harvest by ID' })
-  findOne(@Param('id') id: string) {
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({ type: HarvestDto })
+  findOne(@Param('id') id: string): Promise<HarvestDto> {
     return this.harvestService.findOne(id);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a harvest by ID' })
-  remove(@Param('id') id: string) {
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({ type: HarvestDto })
+  remove(@Param('id') id: string): Promise<HarvestDto> {
     return this.harvestService.remove(id);
   }
 }

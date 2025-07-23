@@ -40,10 +40,6 @@ export class CreateFarmDto {
   @IsUUID()
   producerId: string;
 
-  @ApiProperty({
-    example: true,
-    description: 'Validação automática se soma das áreas bate com totalArea',
-  })
   @Validate(IsValidFarmAreaConstraint)
   checkAreas: boolean;
 }
