@@ -1,18 +1,25 @@
-import { NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   Repository,
-  FindOptionsWhere,
   FindManyOptions,
-  FindOneOptions,
   DeepPartial,
+  QueryFailedError,
 } from 'typeorm';
 
+const PG_UNIQUE_CONSTRAINT_VIOLATION = '23505';
 export abstract class BaseService<T> {
   constructor(protected readonly repository: Repository<T>) {}
-
   async create(data: DeepPartial<T>): Promise<T> {
-    const entity = this.repository.create(data as DeepPartial<T>);
-    return this.repository.save(entity);
+    try {
+      const entity = this.repository.create(data as DeepPartial<T>);
+      return await this.repository.save(entity);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
   }
 
   async findAll(options?: FindManyOptions<T>): Promise<T[]> {
@@ -35,5 +42,16 @@ export abstract class BaseService<T> {
   async remove(id: string): Promise<T> {
     const entity = await this.findOne(id);
     return this.repository.remove(entity);
+  }
+
+  protected handleDatabaseError(error: unknown): never {
+    if (
+      error instanceof QueryFailedError &&
+      (error as any)?.code === PG_UNIQUE_CONSTRAINT_VIOLATION
+    ) {
+      throw new ConflictException('Record already exists.');
+    }
+
+    throw new InternalServerErrorException('Unexpected database error.');
   }
 }

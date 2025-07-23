@@ -30,7 +30,5 @@ import { CultureAssociationService } from './modules/culture-association/culture
     ProducerModule,
     CultureAssociationModule,
   ],
-  controllers: [CultureAssociationController],
-  providers: [CultureAssociationService],
 })
 export class AppModule {}
