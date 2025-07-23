@@ -13,5 +13,5 @@ export class HarvestEntity {
   year: number;
 
   @OneToMany(() => FarmCultureHarvestEntity, (fch) => fch.harvest)
-  farmCultures: FarmCultureHarvestEntity[];
+  farmCultureHarvests: FarmCultureHarvestEntity[];
 }

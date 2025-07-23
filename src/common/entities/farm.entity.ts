@@ -35,5 +35,5 @@ export class FarmEntity {
   producer: ProducerEntity;
 
   @OneToMany(() => FarmCultureHarvestEntity, (fch) => fch.farm)
-  cultures: FarmCultureHarvestEntity[];
+  farmCultureHarvests: FarmCultureHarvestEntity[];
 }

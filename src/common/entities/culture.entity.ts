@@ -10,5 +10,5 @@ export class CultureEntity {
   name: string;
 
   @OneToMany(() => FarmCultureHarvestEntity, (fch) => fch.culture)
-  farmCultures: FarmCultureHarvestEntity[];
+  farmCultureHarvests: FarmCultureHarvestEntity[];
 }

@@ -6,6 +6,9 @@ import { CultureModule } from './modules/culture/culture.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { FarmModule } from './modules/farm/farm.module';
 import { HarvestModule } from './modules/harvest/harvest.module';
+import { CultureAssociationModule } from './modules/culture-association/culture-association.module';
+import { CultureAssociationController } from './modules/culture-association/culture-association.controller';
+import { CultureAssociationService } from './modules/culture-association/culture-association.service';
 
 @Module({
   imports: [
@@ -25,8 +28,9 @@ import { HarvestModule } from './modules/harvest/harvest.module';
     FarmModule,
     HarvestModule,
     ProducerModule,
+    CultureAssociationModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [CultureAssociationController],
+  providers: [CultureAssociationService],
 })
 export class AppModule {}

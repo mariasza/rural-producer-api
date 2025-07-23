@@ -8,12 +8,12 @@ export class FarmCultureHarvestEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => FarmEntity, (farm) => farm.cultures)
+  @ManyToOne(() => FarmEntity, (farm) => farm.farmCultureHarvests)
   farm: FarmEntity;
 
-  @ManyToOne(() => HarvestEntity, (harvest) => harvest.farmCultures)
+  @ManyToOne(() => HarvestEntity, (harvest) => harvest.farmCultureHarvests)
   harvest: HarvestEntity;
 
-  @ManyToOne(() => CultureEntity, (culture) => culture.farmCultures)
+  @ManyToOne(() => CultureEntity, (culture) => culture.farmCultureHarvests)
   culture: CultureEntity;
 }
