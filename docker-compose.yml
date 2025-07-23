@@ -6,13 +6,13 @@ services:
     container_name: rural_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: rural
+      POSTGRES_USER: rural_user
+      POSTGRES_PASSWORD: rural_pass
+      POSTGRES_DB: rural_db
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - rural-postgres-data:/var/lib/postgresql/data
 
   api:
     build: .
@@ -20,15 +20,15 @@ services:
     restart: always
     command: npm run start:dev
     ports:
-      - '3000:3000'
+      - '3001:3000'
     depends_on:
       - postgres
     environment:
-      DB_HOST: postgres
+      DB_HOST: rural_postgres
       DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: rural
+      DB_USER: rural_user
+      DB_PASSWORD: rural_pass
+      DB_NAME: rural_db
 
 volumes:
-  postgres-data:
+  rural-postgres-data:
