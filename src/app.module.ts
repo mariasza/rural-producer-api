@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProducerModule } from './modules/producer/producer.module';
+import { CultureModule } from './modules/culture/culture.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { FarmModule } from './modules/farm/farm.module';
+import { HarvestModule } from './modules/harvest/harvest.module';
 
 @Module({
   imports: [
@@ -15,6 +20,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       entities: [__dirname + '/**/*.entity.{ts,js}'],
       synchronize: true,
     }),
+    CultureModule,
+    DashboardModule,
+    FarmModule,
+    HarvestModule,
+    ProducerModule,
   ],
   controllers: [],
   providers: [],
