@@ -9,6 +9,7 @@ import { HarvestModule } from './modules/harvest/harvest.module';
 import { CultureAssociationModule } from './modules/culture-association/culture-association.module';
 import { CultureAssociationController } from './modules/culture-association/culture-association.controller';
 import { CultureAssociationService } from './modules/culture-association/culture-association.service';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -22,6 +23,21 @@ import { CultureAssociationService } from './modules/culture-association/culture
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity.{ts,js}'],
       synchronize: true,
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+                options: {
+                  colorize: true,
+                  translateTime: 'SYS:standard',
+                  singleLine: true,
+                },
+              }
+            : undefined,
+      },
     }),
     CultureModule,
     DashboardModule,

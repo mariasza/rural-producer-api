@@ -3,11 +3,24 @@ import { AppModule } from './app.module';
 import { TransformResponseInterceptor } from './shared/interceptors/transform-response.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
+import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  app.useLogger(app.get(Logger));
+
   const reflector = app.get(Reflector);
-  app.useGlobalInterceptors(new TransformResponseInterceptor(reflector));
+  app.useGlobalInterceptors(
+    new TransformResponseInterceptor(reflector),
+    new LoggingInterceptor(),
+  );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
