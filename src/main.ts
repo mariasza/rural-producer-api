@@ -17,10 +17,10 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(
     new TransformResponseInterceptor(reflector),
-    new LoggingInterceptor(),
+    app.get(LoggingInterceptor),
   );
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(app.get(HttpExceptionFilter));
 
   app.useGlobalPipes(
     new ValidationPipe({

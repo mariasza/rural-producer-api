@@ -7,9 +7,9 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { FarmModule } from './modules/farm/farm.module';
 import { HarvestModule } from './modules/harvest/harvest.module';
 import { CultureAssociationModule } from './modules/culture-association/culture-association.module';
-import { CultureAssociationController } from './modules/culture-association/culture-association.controller';
-import { CultureAssociationService } from './modules/culture-association/culture-association.service';
 import { LoggerModule } from 'nestjs-pino';
+import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -46,5 +46,6 @@ import { LoggerModule } from 'nestjs-pino';
     ProducerModule,
     CultureAssociationModule,
   ],
+  providers: [LoggingInterceptor, HttpExceptionFilter],
 })
 export class AppModule {}
