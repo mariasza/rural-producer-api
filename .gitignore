@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+# Output do Jest (test coverage)
+coverage/
+
 # Logs
 logs
 *.log
