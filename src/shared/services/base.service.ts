@@ -74,11 +74,12 @@ export abstract class BaseService<T> {
   async remove(id: string): Promise<T> {
     this.logger.warn(`Removing ${this.repository.metadata.name} with ID ${id}`);
     const entity = await this.findOne(id);
-    const removed = await this.repository.remove(entity);
+    const result = { ...entity };
+    await this.repository.remove(entity);
     this.logger.info(
       `Successfully removed ${this.repository.metadata.name} with ID ${id}`,
     );
-    return removed;
+    return result;
   }
 
   protected handleDatabaseError(error: unknown): never {

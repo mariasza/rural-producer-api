@@ -13,7 +13,10 @@ import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+}),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

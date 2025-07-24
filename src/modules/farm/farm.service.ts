@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { BaseService } from '@/shared/services/base.service';
 import { ProducerEntity } from '@/common/entities/producer.entity';
 import { PinoLogger } from 'nestjs-pino';
+import { CreateFarmDto } from './dto/create-farm.dto';
 
 @Injectable()
 export class FarmService extends BaseService<FarmEntity> {
@@ -21,13 +22,13 @@ export class FarmService extends BaseService<FarmEntity> {
     this.logger.setContext(FarmService.name);
   }
 
-  async create(data: Partial<FarmEntity>) {
-    this.logger.info(`Validating producerId=${data.producer?.id}`);
+  async create(data: CreateFarmDto) {
+    this.logger.info(`Validating producerId=${data.producerId}`);
     const producer = await this.producerRepo.findOneBy({
-      id: data.producer?.id,
+      id: data.producerId,
     });
     if (!producer) {
-      this.logger.warn(`Producer not found: id=${data.producer?.id}`);
+      this.logger.warn(`Producer not found: id=${data.producerId}`);
       throw new NotFoundException('Producer not found');
     }
 

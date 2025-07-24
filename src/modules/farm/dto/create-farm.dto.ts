@@ -41,5 +41,5 @@ export class CreateFarmDto {
   producerId: string;
 
   @Validate(IsValidFarmAreaConstraint)
-  checkAreas: boolean;
+  checkAreas?: boolean;
 }
