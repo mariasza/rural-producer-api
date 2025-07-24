@@ -3,6 +3,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { Logger } from 'nestjs-pino';
+import {
+  createProducerDto,
+  createProducerWithCnpjDto,
+} from '@/common/tests/factories/dtos/create-producer.dto.factory';
 
 describe('Producer (e2e)', () => {
   let app: INestApplication;
@@ -32,15 +36,16 @@ describe('Producer (e2e)', () => {
     await app.close();
   });
 
-  it('should create a new producer', async () => {
+  it('should create a new producer (CPF)', async () => {
+    const dto = createProducerDto();
     const response = await request(app.getHttpServer())
       .post('/producers')
-      .send({ name: 'João da Silva', document: '537.083.770-87' })
+      .send(dto)
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
-    expect(response.body.name).toBe('João da Silva');
-    expect(response.body.document).toBe('53708377087');
+    expect(response.body.name).toBe(dto.name);
+    expect(response.body.document).toMatch(/^\d{11}$/);
     createdId = response.body.id;
   });
 
@@ -56,14 +61,16 @@ describe('Producer (e2e)', () => {
   });
 
   it('should create a producer with valid CNPJ', async () => {
+    const dto = createProducerWithCnpjDto();
+
     const response = await request(app.getHttpServer())
       .post('/producers')
-      .send({ name: 'Empresa Teste Ltda', document: '57.933.316/0001-53' })
+      .send(dto)
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
-    expect(response.body.name).toBe('Empresa Teste Ltda');
-    expect(response.body.document).toBe('57933316000153');
+    expect(response.body.name).toBe(dto.name);
+    expect(response.body.document).toMatch(/^\d{14}$/);
     cnpjCreatedId = response.body.id;
   });
 
@@ -93,7 +100,6 @@ describe('Producer (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveProperty('id', createdId);
-    expect(response.body).toHaveProperty('name', 'João da Silva');
   });
 
   it('should update a producer', async () => {

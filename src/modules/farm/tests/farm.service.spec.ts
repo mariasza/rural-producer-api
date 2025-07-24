@@ -6,6 +6,8 @@ import { FarmEntity } from '@/common/entities/farm.entity';
 import { ProducerEntity } from '@/common/entities/producer.entity';
 import { PinoLogger } from 'nestjs-pino';
 import { NotFoundException } from '@nestjs/common';
+import { createFarmEntity } from '@/common/tests/factories/entities/farm.entity.factory';
+import { createFarmDto } from '@/common/tests/factories/dtos/create-farm.dto.factory';
 
 describe('FarmService', () => {
   let service: FarmService;
@@ -58,16 +60,6 @@ describe('FarmService', () => {
   });
 
   it('should create a farm with valid producer', async () => {
-    const dto = {
-      name: 'Fazenda A',
-      city: 'Manaus',
-      state: 'AM',
-      totalArea: 100,
-      agriculturalArea: 60,
-      vegetationArea: 40,
-      producerId: 'prod-1',
-    };
-
     const mockProducer: ProducerEntity = {
       id: 'prod-1',
       name: 'Produtor A',
@@ -75,17 +67,8 @@ describe('FarmService', () => {
       farms: [],
     };
 
-    const expectedFarm: FarmEntity = {
-      id: 'farm-1',
-      name: dto.name,
-      city: dto.city,
-      state: dto.state,
-      totalArea: dto.totalArea,
-      agriculturalArea: dto.agriculturalArea,
-      vegetationArea: dto.vegetationArea,
-      producer: mockProducer,
-      farmCultureHarvests: [],
-    };
+    const dto = createFarmDto(mockProducer.id);
+    const expectedFarm = createFarmEntity({ ...dto, producer: mockProducer });
 
     producerRepo.findOneBy.mockResolvedValue(mockProducer);
     farmRepo.create.mockReturnValue(expectedFarm);
@@ -99,23 +82,14 @@ describe('FarmService', () => {
   });
 
   it('should throw if producer not found', async () => {
-    const dto = {
-      name: 'Fazenda B',
-      city: 'Manaus',
-      state: 'AM',
-      totalArea: 100,
-      agriculturalArea: 60,
-      vegetationArea: 40,
-      producerId: 'not-found',
-    };
-
+    const dto = createFarmDto('non-existent-id');
     producerRepo.findOneBy.mockResolvedValue(null);
 
     await expect(service.create(dto)).rejects.toThrow(NotFoundException);
   });
 
   it('should list all farms', async () => {
-    const farms = [{ id: '1', name: 'A' }] as FarmEntity[];
+    const farms = [createFarmEntity()];
     farmRepo.find.mockResolvedValue(farms);
 
     const result = await service.findAll();
@@ -123,19 +97,19 @@ describe('FarmService', () => {
   });
 
   it('should find one farm by id', async () => {
-    const farm = { id: '1', name: 'A' } as FarmEntity;
+    const farm = createFarmEntity();
     farmRepo.findOne.mockResolvedValue(farm);
 
-    const result = await service.findOne('1');
+    const result = await service.findOne(farm.id);
     expect(result).toEqual(farm);
   });
 
   it('should remove a farm', async () => {
-    const farm = { id: '1', name: 'Fazenda Z' } as FarmEntity;
+    const farm = createFarmEntity();
     farmRepo.findOne.mockResolvedValue(farm);
     farmRepo.remove.mockResolvedValue(farm);
 
-    const result = await service.remove('1');
+    const result = await service.remove(farm.id);
     expect(result).toEqual(farm);
   });
 });

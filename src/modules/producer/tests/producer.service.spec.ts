@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { ProducerEntity } from '@/common/entities/producer.entity';
 import { ProducerService } from '../producer.service';
 import { PinoLogger } from 'nestjs-pino';
+import { createProducerDto } from '@/common/tests/factories/dtos/create-producer.dto.factory';
+import { createProducerEntity } from '@/common/tests/factories/entities/producer.entity.factory';
 
 describe('ProducerService', () => {
   let service: ProducerService;
@@ -44,8 +46,8 @@ describe('ProducerService', () => {
   });
 
   it('should create a producer', async () => {
-    const dto = { name: 'João', document: '12345678909' };
-    const entity = { id: '1', ...dto } as ProducerEntity;
+    const dto = createProducerDto();
+    const entity = createProducerEntity(dto);
     repo.create.mockReturnValue(entity);
     repo.save.mockResolvedValue(entity);
 
@@ -56,39 +58,38 @@ describe('ProducerService', () => {
   });
 
   it('should return all producers', async () => {
-    const producers = [{ id: '1', name: 'Maria' }];
-    repo.find.mockResolvedValue(producers as any);
+    const entities = [createProducerEntity(), createProducerEntity()];
+    repo.find.mockResolvedValue(entities as any);
 
     const result = await service.findAll();
-    expect(result).toEqual(producers);
+    expect(result).toEqual(entities);
   });
 
   it('should return one producer', async () => {
-    const producer = { id: '1', name: 'Ana' } as ProducerEntity;
-    repo.findOne.mockResolvedValue(producer);
+    const entity = createProducerEntity();
+    repo.findOne.mockResolvedValue(entity);
 
-    const result = await service.findOne('1');
-    expect(result).toEqual(producer);
-    expect(repo.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
+    const result = await service.findOne(entity.id);
+    expect(result).toEqual(entity);
+    expect(repo.findOne).toHaveBeenCalledWith({ where: { id: entity.id } });
   });
 
   it('should update a producer', async () => {
-    const oldProducer = { id: '1', name: 'Joana' } as ProducerEntity;
-    const updatedProducer = { id: '1', name: 'Joana Silva' } as ProducerEntity;
+    const oldEntity = createProducerEntity();
+    const updatedEntity = { ...oldEntity, name: 'Updated Name' };
+    repo.findOne.mockResolvedValue(oldEntity);
+    repo.save.mockResolvedValue(updatedEntity);
 
-    repo.findOne.mockResolvedValue(oldProducer);
-    repo.save.mockResolvedValue(updatedProducer);
-
-    const result = await service.update('1', { name: 'Joana Silva' });
-    expect(result).toEqual(updatedProducer);
+    const result = await service.update(oldEntity.id, { name: 'Updated Name' });
+    expect(result).toEqual(updatedEntity);
   });
 
   it('should remove a producer', async () => {
-    const producer = { id: '1', name: 'Carlos' } as ProducerEntity;
-    repo.findOne.mockResolvedValue(producer);
-    repo.remove.mockResolvedValue(producer);
+    const entity = createProducerEntity();
+    repo.findOne.mockResolvedValue(entity);
+    repo.remove.mockResolvedValue(entity);
 
-    const result = await service.remove('1');
-    expect(result).toEqual(producer);
+    const result = await service.remove(entity.id);
+    expect(result).toEqual(entity);
   });
 });

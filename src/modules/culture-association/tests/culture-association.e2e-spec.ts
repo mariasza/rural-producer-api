@@ -3,10 +3,14 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { DataSource } from 'typeorm';
-import { CultureEntity } from '@/common/entities/culture.entity';
-import { ProducerEntity } from '@/common/entities/producer.entity';
 import { FarmEntity } from '@/common/entities/farm.entity';
 import { HarvestEntity } from '@/common/entities/harvest.entity';
+import { CultureEntity } from '@/common/entities/culture.entity';
+import { ProducerEntity } from '@/common/entities/producer.entity';
+import { createCultureEntity } from '@/common/tests/factories/entities/culture.entity.factory';
+import { createHarvestEntity } from '@/common/tests/factories/entities/harvest.entity.factory';
+import { createProducerEntity } from '@/common/tests/factories/entities/producer.entity.factory';
+import { createFarmEntity } from '@/common/tests/factories/entities/farm.entity.factory';
 
 describe('CultureAssociation (e2e)', () => {
   let app: INestApplication;
@@ -28,32 +32,19 @@ describe('CultureAssociation (e2e)', () => {
     db = module.get(DataSource);
 
     const producerRepo = db.getRepository(ProducerEntity);
-    let producer = await producerRepo.findOneBy({ document: '12345678909' });
-    if (!producer) {
-      producer = await producerRepo.save({
-        name: 'Produtor Teste',
-        document: '12345678909',
-      });
-    }
+    const farmRepo = db.getRepository(FarmEntity);
+    const harvestRepo = db.getRepository(HarvestEntity);
+    const cultureRepo = db.getRepository(CultureEntity);
 
-    const farm = await db.getRepository(FarmEntity).save({
-      name: 'Fazenda Teste',
-      city: 'Manaus',
-      state: 'AM',
-      totalArea: 100,
-      agriculturalArea: 60,
-      vegetationArea: 40,
-      producer,
-    });
+    const producer = await producerRepo.save(createProducerEntity());
+    const farm = await farmRepo.save(createFarmEntity({ producer }));
     farmId = farm.id;
 
-    const harvest = await db
-      .getRepository(HarvestEntity)
-      .save({ name: 'Safra/1', year: 2025 });
+    const harvest = await harvestRepo.save(createHarvestEntity());
     harvestId = harvest.id;
 
-    const c1 = await db.getRepository(CultureEntity).save({ name: 'Soja' });
-    const c2 = await db.getRepository(CultureEntity).save({ name: 'Milho' });
+    const c1 = await cultureRepo.save(createCultureEntity());
+    const c2 = await cultureRepo.save(createCultureEntity());
     cultureIds = [c1.id, c2.id];
   });
 

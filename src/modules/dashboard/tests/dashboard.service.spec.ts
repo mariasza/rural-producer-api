@@ -3,37 +3,41 @@ import { DashboardService } from '../dashboard.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FarmEntity } from '@/common/entities/farm.entity';
 import { PinoLogger } from 'nestjs-pino';
+import { createFarmEntity } from '@/common/tests/factories/entities/farm.entity.factory';
+import { createCultureEntity } from '@/common/tests/factories/entities/culture.entity.factory';
+import { createFarmCultureHarvestEntity } from '@/common/tests/factories/entities/farm.culture.harvest.entity.factory';
 
 describe('DashboardService', () => {
   let service: DashboardService;
+
+  const milho = createCultureEntity({ name: 'Milho' });
+  const soja = createCultureEntity({ name: 'Soja' });
+
   const mockFarms = [
-    {
-      id: '1',
+    createFarmEntity({
       state: 'AM',
       totalArea: 100,
       agriculturalArea: 60,
       vegetationArea: 40,
       farmCultureHarvests: [
-        { culture: { name: 'Milho' } },
-        { culture: { name: 'Soja' } },
+        createFarmCultureHarvestEntity({ culture: milho }),
+        createFarmCultureHarvestEntity({ culture: soja }),
       ],
-    },
-    {
-      id: '2',
+    }),
+    createFarmEntity({
       state: 'AM',
       totalArea: 50,
       agriculturalArea: 30,
       vegetationArea: 20,
-      farmCultureHarvests: [{ culture: { name: 'Milho' } }],
-    },
-    {
-      id: '3',
+      farmCultureHarvests: [createFarmCultureHarvestEntity({ culture: milho })],
+    }),
+    createFarmEntity({
       state: 'PA',
       totalArea: 70,
       agriculturalArea: 50,
       vegetationArea: 20,
       farmCultureHarvests: [],
-    },
+    }),
   ];
 
   const mockFarmRepo = {

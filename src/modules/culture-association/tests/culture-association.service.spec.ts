@@ -5,10 +5,13 @@ import { FarmCultureHarvestEntity } from '@/common/entities/farm-culture-harvest
 import { FarmEntity } from '@/common/entities/farm.entity';
 import { HarvestEntity } from '@/common/entities/harvest.entity';
 import { CultureEntity } from '@/common/entities/culture.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { NotFoundException } from '@nestjs/common';
 import { AssociateCulturesDto } from '../dto/associate-cultures.dto';
+import { createFarmEntity } from '@/common/tests/factories/entities/farm.entity.factory';
+import { createCultureEntity } from '@/common/tests/factories/entities/culture.entity.factory';
+import { createHarvestEntity } from '@/common/tests/factories/entities/harvest.entity.factory';
 
 describe('CultureAssociationService', () => {
   let service: CultureAssociationService;
@@ -38,7 +41,7 @@ describe('CultureAssociationService', () => {
         },
         {
           provide: getRepositoryToken(CultureEntity),
-          useValue: { findByIds: jest.fn() },
+          useValue: { findBy: jest.fn() },
         },
         {
           provide: getRepositoryToken(FarmCultureHarvestEntity),
@@ -60,36 +63,36 @@ describe('CultureAssociationService', () => {
   });
 
   it('should associate cultures successfully', async () => {
-    const farm = { id: 'farm1' } as FarmEntity;
-    const harvest = { id: 'harvest1' } as HarvestEntity;
-    const cultures = [
-      { id: 'c1', name: 'Milho' },
-      { id: 'c2', name: 'Soja' },
-    ] as CultureEntity[];
+    const farm = createFarmEntity();
+    const harvest = createHarvestEntity();
+    const cultures = [createCultureEntity(), createCultureEntity()];
 
     const dto: AssociateCulturesDto = {
-      cultureIds: ['c1', 'c2'],
+      cultureIds: cultures.map((c) => c.id),
     };
 
     farmRepo.findOne.mockResolvedValue(farm);
     harvestRepo.findOne.mockResolvedValue(harvest);
-    cultureRepo.findByIds.mockResolvedValue(cultures);
+    cultureRepo.findBy.mockResolvedValue(cultures);
 
     assocRepo.create.mockImplementation(
       (data) => data as FarmCultureHarvestEntity,
     );
 
-    const expectedAssociations: FarmCultureHarvestEntity[] = [
-      { farm, harvest, culture: cultures[0] },
-      { farm, harvest, culture: cultures[1] },
-    ] as FarmCultureHarvestEntity[];
+    const expectedAssociations: FarmCultureHarvestEntity[] = cultures.map(
+      (culture) => ({
+        farm,
+        harvest,
+        culture,
+      }),
+    ) as FarmCultureHarvestEntity[];
 
     (assocRepo.save as jest.Mock).mockResolvedValue(expectedAssociations);
 
-    const result = await service.associateCultures('farm1', 'harvest1', dto);
+    const result = await service.associateCultures(farm.id, harvest.id, dto);
 
     expect(result).toHaveLength(2);
-    expect(cultureRepo.findByIds).toHaveBeenCalledWith(dto.cultureIds);
+    expect(cultureRepo.findBy).toHaveBeenCalledWith({ id: In(dto.cultureIds) });
     expect(assocRepo.create).toHaveBeenCalledTimes(2);
     expect(assocRepo.save).toHaveBeenCalledWith(expectedAssociations);
   });

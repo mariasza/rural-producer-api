@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FarmCultureHarvestEntity } from '@/common/entities/farm-culture-harvest.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AssociateCulturesDto } from './dto/associate-cultures.dto';
 import { FarmEntity } from '@/common/entities/farm.entity';
 import { HarvestEntity } from '@/common/entities/harvest.entity';
@@ -51,7 +51,7 @@ export class CultureAssociationService {
       throw new NotFoundException('Harvest not found');
     }
 
-    const cultures = await this.cultureRepo.findByIds(dto.cultureIds);
+    const cultures = await this.cultureRepo.findBy({ id: In(dto.cultureIds) });
     if (cultures.length !== dto.cultureIds.length) {
       this.logger.warn(
         `Some cultures not found: expected=${dto.cultureIds.length}, found=${cultures.length}`,

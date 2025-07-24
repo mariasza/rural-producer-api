@@ -3,12 +3,16 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { Logger } from 'nestjs-pino';
+import { createCultureDto } from '@/common/tests/factories/dtos/create-culture.dto.factory';
+import { createManyCultures } from '@/common/tests/factories/helpers/create-many-cultures';
 import { DataSource } from 'typeorm';
-import { CultureEntity } from '@/common/entities/culture.entity';
+import { CreateCultureDto } from '../dto/create-culture.dto';
 
 describe('Culture (e2e)', () => {
   let app: INestApplication;
   let createdId: string;
+  let db: DataSource;
+  let dto: CreateCultureDto;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -20,6 +24,9 @@ describe('Culture (e2e)', () => {
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
     );
+
+    db = moduleFixture.get(DataSource);
+    dto = createCultureDto();
     await app.init();
   });
 
@@ -30,15 +37,17 @@ describe('Culture (e2e)', () => {
   it('should create a new culture', async () => {
     const response = await request(app.getHttpServer())
       .post('/cultures')
-      .send({ name: 'Milho' })
+      .send(dto)
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
-    expect(response.body.name).toBe('Milho');
+    expect(response.body.name).toBe(dto.name);
     createdId = response.body.id;
   });
 
   it('should return all cultures', async () => {
+    await createManyCultures(db);
+
     const response = await request(app.getHttpServer())
       .get('/cultures')
       .expect(200);
@@ -53,16 +62,18 @@ describe('Culture (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveProperty('id', createdId);
-    expect(response.body).toHaveProperty('name', 'Milho');
+    expect(response.body).toHaveProperty('name', dto.name);
   });
 
   it('should update a culture', async () => {
+    const updatedDto = createCultureDto();
+
     const response = await request(app.getHttpServer())
       .patch(`/cultures/${createdId}`)
-      .send({ name: 'Soja' })
+      .send(updatedDto)
       .expect(200);
 
-    expect(response.body.name).toBe('Soja');
+    expect(response.body.name).toBe(updatedDto.name);
   });
 
   it('should delete a culture', async () => {
@@ -70,7 +81,6 @@ describe('Culture (e2e)', () => {
       .delete(`/cultures/${createdId}`)
       .expect(200);
 
-    console.log('Deleted culture response:', response.body);
     expect(response.body).toHaveProperty('id', createdId);
   });
 

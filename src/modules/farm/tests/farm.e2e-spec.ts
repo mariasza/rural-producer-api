@@ -3,6 +3,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { Logger } from 'nestjs-pino';
+import { createFarmDto } from '@/common/tests/factories/dtos/create-farm.dto.factory';
+import { createProducerDto } from '@/common/tests/factories/dtos/create-producer.dto.factory';
 
 describe('Farm (e2e)', () => {
   let app: INestApplication;
@@ -21,12 +23,10 @@ describe('Farm (e2e)', () => {
     );
     await app.init();
 
+    const producerDto = createProducerDto();
     const producerRes = await request(app.getHttpServer())
       .post('/producers')
-      .send({
-        name: 'Produtor de Teste',
-        document: '546.573.660-76',
-      })
+      .send(producerDto)
       .expect(201);
 
     createdProducerId = producerRes.body.id;
@@ -43,38 +43,24 @@ describe('Farm (e2e)', () => {
   });
 
   it('should create a new farm with valid areas', async () => {
+    const farmDto = createFarmDto(createdProducerId);
+
     const response = await request(app.getHttpServer())
       .post('/farms')
-      .send({
-        name: 'Fazenda Boa Terra',
-        city: 'Manaus',
-        state: 'AM',
-        totalArea: 100,
-        agriculturalArea: 60,
-        vegetationArea: 40,
-        producerId: createdProducerId,
-        checkAreas: true,
-      })
+      .send(farmDto)
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
-    expect(response.body.name).toBe('Fazenda Boa Terra');
+    expect(response.body.name).toBe(farmDto.name);
     createdFarmId = response.body.id;
   });
 
   it('should fail to create a farm with invalid areas', async () => {
+    const farmDto = createFarmDto(createdProducerId);
+    farmDto.vegetationArea = 10000;
     const response = await request(app.getHttpServer())
       .post('/farms')
-      .send({
-        name: 'Fazenda Ruim',
-        city: 'Itacoatiara',
-        state: 'AM',
-        totalArea: 50,
-        agriculturalArea: 30,
-        vegetationArea: 30,
-        producerId: createdProducerId,
-        checkAreas: true,
-      })
+      .send(farmDto)
       .expect(400);
 
     expect(response.body.message[0]).toContain(

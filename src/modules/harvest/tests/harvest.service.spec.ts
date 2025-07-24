@@ -4,6 +4,8 @@ import { HarvestEntity } from '@/common/entities/harvest.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
+import { createHarvestDto } from '@/common/tests/factories/dtos/create-harvest.dto.factory';
+import { createHarvestEntity } from '@/common/tests/factories/entities/harvest.entity.factory';
 
 describe('HarvestService', () => {
   let service: HarvestService;
@@ -44,8 +46,8 @@ describe('HarvestService', () => {
   });
 
   it('should create a harvest', async () => {
-    const dto = { name: 'Safra 2025' };
-    const entity = { id: '1', ...dto } as HarvestEntity;
+    const dto = createHarvestDto();
+    const entity = createHarvestEntity(dto);
     repo.create.mockReturnValue(entity);
     repo.save.mockResolvedValue(entity);
 
@@ -56,7 +58,7 @@ describe('HarvestService', () => {
   });
 
   it('should return all harvests', async () => {
-    const harvests = [{ id: '1', name: 'Safra 2024' }];
+    const harvests = [createHarvestEntity()];
     repo.find.mockResolvedValue(harvests as any);
 
     const result = await service.findAll();
@@ -64,7 +66,7 @@ describe('HarvestService', () => {
   });
 
   it('should return one harvest', async () => {
-    const harvest = { id: '1', name: 'Safra 2023' } as HarvestEntity;
+    const harvest = createHarvestEntity({ id: '1' });
     repo.findOne.mockResolvedValue(harvest);
 
     const result = await service.findOne('1');
@@ -73,7 +75,7 @@ describe('HarvestService', () => {
   });
 
   it('should remove a harvest', async () => {
-    const harvest = { id: '1', name: 'Safra 2022' } as HarvestEntity;
+    const harvest = createHarvestEntity({ id: '1' });
     repo.findOne.mockResolvedValue(harvest);
     repo.remove.mockResolvedValue(harvest);
 

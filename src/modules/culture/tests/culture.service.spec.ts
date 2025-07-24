@@ -1,9 +1,11 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { CultureService } from '../culture.service';
 import { Repository } from 'typeorm';
 import { CultureEntity } from '@/common/entities/culture.entity';
-import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
+import { faker } from '@faker-js/faker';
+import { createCultureDto } from '@/common/tests/factories/dtos/create-culture.dto.factory';
 
 describe('CultureService', () => {
   let service: CultureService;
@@ -37,6 +39,7 @@ describe('CultureService', () => {
 
     service = module.get<CultureService>(CultureService);
     repo = module.get(getRepositoryToken(CultureEntity));
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -44,8 +47,9 @@ describe('CultureService', () => {
   });
 
   it('should create a culture', async () => {
-    const dto = { name: 'Milho' };
-    const entity = { id: '1', ...dto } as CultureEntity;
+    const dto = createCultureDto();
+    const entity = { id: faker.string.uuid(), ...dto } as CultureEntity;
+
     repo.create.mockReturnValue(entity);
     repo.save.mockResolvedValue(entity);
 
@@ -56,39 +60,49 @@ describe('CultureService', () => {
   });
 
   it('should return all cultures', async () => {
-    const cultures = [{ id: '1', name: 'Soja' }];
-    repo.find.mockResolvedValue(cultures as any);
+    const cultures = [
+      { id: faker.string.uuid(), name: faker.word.noun() },
+      { id: faker.string.uuid(), name: faker.word.noun() },
+    ] as CultureEntity[];
+
+    repo.find.mockResolvedValue(cultures);
 
     const result = await service.findAll();
     expect(result).toEqual(cultures);
   });
 
   it('should return one culture', async () => {
-    const culture = { id: '1', name: 'Arroz' } as CultureEntity;
+    const id = faker.string.uuid();
+    const culture = { id, name: faker.word.noun() } as CultureEntity;
+
     repo.findOne.mockResolvedValue(culture);
 
-    const result = await service.findOne('1');
+    const result = await service.findOne(id);
     expect(result).toEqual(culture);
-    expect(repo.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(repo.findOne).toHaveBeenCalledWith({ where: { id } });
   });
 
   it('should update a culture', async () => {
-    const oldCulture = { id: '1', name: 'Feijão' } as CultureEntity;
-    const updatedCulture = { id: '1', name: 'Feijão Preto' } as CultureEntity;
+    const id = faker.string.uuid();
+    const oldCulture = { id, name: faker.word.noun() } as CultureEntity;
+    const updatedDto = createCultureDto();
+    const updatedCulture = { id, ...updatedDto } as CultureEntity;
 
     repo.findOne.mockResolvedValue(oldCulture);
     repo.save.mockResolvedValue(updatedCulture);
 
-    const result = await service.update('1', { name: 'Feijão Preto' });
+    const result = await service.update(id, updatedDto);
     expect(result).toEqual(updatedCulture);
   });
 
   it('should remove a culture', async () => {
-    const culture = { id: '1', name: 'Trigo' } as CultureEntity;
+    const id = faker.string.uuid();
+    const culture = { id, name: faker.word.noun() } as CultureEntity;
+
     repo.findOne.mockResolvedValue(culture);
     repo.remove.mockResolvedValue(culture);
 
-    const result = await service.remove('1');
+    const result = await service.remove(id);
     expect(result).toEqual(culture);
   });
 });
